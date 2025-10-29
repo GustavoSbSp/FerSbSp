@@ -186,4 +186,23 @@
           const cursorX = ev.clientX, cursorY = ev.clientY;
           const naoRect = btnNao.getBoundingClientRect();
           const distX = Math.max(0, Math.abs((naoRect.left + naoRect.right)/2 - cursorX));
-          const distY = Math.max(0, Math.abs((
+          const distY = Math.max(0, Math.abs((naoRect.top + naoRect.bottom)/2 - cursorY));
+          const distance = Math.hypot(distX, distY);
+
+          // se o cursor estiver a menos de 120px do centro do NÃO, ele foge
+          if (distance < 120) moveNaoAvoidingSim();
+        });
+      }
+
+      // Prevenir que o botão NÃO seja clicável (segundo plano)
+      btnNao.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+
+      // Iniciar a movimentação e comportamento do botão NÃO
+      placeInitial();
+      attachFleeBehavior();
+    })();
+  </script>
+</body>
+</html>
