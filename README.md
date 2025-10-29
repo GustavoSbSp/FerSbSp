@@ -1,1 +1,235 @@
-# teste
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Convite Especial</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#10b981;
+      --accent-dark:#059669;
+      --text:#e6eef8;
+      --muted:#9fb3c8;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#071126 0%, #0f1724 100%);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .card{
+      width: min(520px, 92vw);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border-radius:16px;
+      padding:28px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.7);
+      text-align:center;
+    }
+    h1{ margin:0 0 8px; font-size:1.4rem; }
+    p{ margin:0 0 18px; color:var(--muted); }
+    .button-row{
+      position:relative;
+      height:84px; /* área onde os botões podem se mover */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:18px;
+    }
+    .btn{
+      user-select:none;
+      -webkit-user-select:none;
+      border:0;
+      padding:14px 20px;
+      border-radius:10px;
+      font-weight:600;
+      font-size:1rem;
+      cursor:pointer;
+      transition: transform .12s ease, background-color .12s ease;
+      position:relative;
+      z-index:2;
+      min-width:140px;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .btn:active{ transform:scale(.98); }
+    .btn-sim{
+      background: linear-gradient(180deg,var(--accent),var(--accent-dark));
+      color:white;
+      box-shadow: 0 6px 18px rgba(16,185,129,0.18);
+    }
+    .btn-nao{
+      background: rgba(255,255,255,0.06);
+      color:var(--text);
+      border: 1px solid rgba(255,255,255,0.04);
+      position:absolute; /* para permitir movimentação dentro da .button-row */
+      z-index:3;
+      min-width:120px;
+    }
+    small{ display:block; margin-top:10px; color:var(--muted); }
+    /* responsividade: tamanhos móveis */
+    @media (max-width:420px){
+      .btn{ min-width:120px; padding:12px 14px; }
+      .button-row{ height:110px; gap:12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Oi amor 💕</h1>
+    <p>Tá afim de me fazer uma massagem hoje?</p>
+
+    <div class="button-row" id="area">
+      <!-- Botão SIM: link direto pro WhatsApp com mensagem já preenchida -->
+      <a id="btnSim" class="btn btn-sim"
+         href="https://wa.me/5541998102378?text=ESTOU%20MUITO%20AFIM%20DE%20TE%20FAZER%20UMA%20MASSAGEM%20HOJE%2C%20O%20QUE%20ACHA%3F"
+         rel="noopener noreferrer"
+      >SIM</a>
+
+      <!-- Botão NÃO: será posicionado por JS dentro da área, e foge quando tentarem clicar -->
+      <button id="btnNao" class="btn btn-nao" type="button">NÃO</button>
+    </div>
+
+    <small>Toque em "SIM" para abrir o WhatsApp e enviar a mensagem 😉</small>
+  </div>
+
+  <script>
+    (function(){
+      const btnNao = document.getElementById('btnNao');
+      const btnSim = document.getElementById('btnSim');
+      const area = document.getElementById('area');
+
+      // Inicializa posição do NÃO ao lado do SIM (lado direito)
+      function placeInitial() {
+        const areaRect = area.getBoundingClientRect();
+        const simRect = btnSim.getBoundingClientRect();
+
+        // calcular posição inicial do NÃO: mesma linha, à direita do SIM
+        const left = (simRect.right - areaRect.left) + 18; // 18px gap
+        const top = (areaRect.height - btnNao.offsetHeight)/2;
+
+        btnNao.style.left = Math.min(left, areaRect.width - btnNao.offsetWidth - 8) + 'px';
+        btnNao.style.top = Math.max(4, top) + 'px';
+      }
+
+      // Função para checar se dois retângulos se sobrepõem
+      function rectsOverlap(a, b) {
+        return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+      }
+
+      // Move o botão NÃO para um lugar aleatório dentro da área sem sobrepor o SIM
+      function moveNaoAvoidingSim() {
+        const areaRect = area.getBoundingClientRect();
+        const simRect = btnSim.getBoundingClientRect();
+
+        const padding = 6; // espaço mínimo das bordas
+        const maxAttempts = 200;
+        let attempt = 0;
+        let placed = false;
+
+        while (!placed && attempt < maxAttempts) {
+          attempt++;
+          // calcular coordenadas relativas à área
+          const maxLeft = Math.max(0, areaRect.width - btnNao.offsetWidth - padding);
+          const maxTop = Math.max(0, areaRect.height - btnNao.offsetHeight - padding);
+          const left = Math.round(Math.random() * maxLeft);
+          const top = Math.round(Math.random() * maxTop);
+
+          // criar retângulo hipotético para o NÃO (convertendo para coordenadas de viewport)
+          const naoRect = {
+            left: areaRect.left + left,
+            top: areaRect.top + top,
+            right: areaRect.left + left + btnNao.offsetWidth,
+            bottom: areaRect.top + top + btnNao.offsetHeight
+          };
+
+          // simRect já em viewport coords; evitar overlap com simRect
+          if (!rectsOverlap(naoRect, simRect)) {
+            // aplicar posição (em pixels relativos ao container)
+            btnNao.style.left = left + 'px';
+            btnNao.style.top = top + 'px';
+            placed = true;
+          }
+        }
+        // se por algum motivo não encontrou (muito raro), deixa no canto superior direito sem sobreposição
+        if (!placed) {
+          // tentar empurrar para cima/direita da SIM
+          const fallbackLeft = Math.min(areaRect.width - btnNao.offsetWidth - padding, (simRect.right - areaRect.left) + 10);
+          const fallbackTop = Math.max(padding, (simRect.top - areaRect.top) - 10);
+          btnNao.style.left = fallbackLeft + 'px';
+          btnNao.style.top = fallbackTop + 'px';
+        }
+      }
+
+      // Ao entrar com mouse ou tocar, o botão foge
+      function attachFleeBehavior() {
+        const trigger = (e) => {
+          // se o evento vem do próprio SIM (p.ex. clicar sim), não mover
+          // também se for um clique no próprio NÃO (touchend diretamente sobre ele) ignoramos para não deixar ser clicado
+          moveNaoAvoidingSim();
+        };
+
+        // mouseenter, mousemove e touchstart para tentativas de clicar/tocar
+        btnNao.addEventListener('mouseenter', trigger);
+        btnNao.addEventListener('mousemove', trigger);
+        btnNao.addEventListener('touchstart', (e) => {
+          e.preventDefault(); // evita que o toque faça foco e clique
+          moveNaoAvoidingSim();
+        }, {passive:false});
+
+        // Também fazer o NÃO fugir se o cursor se aproximar: observar movimento do mouse na área
+        area.addEventListener('mousemove', (ev) => {
+          const cursorX = ev.clientX, cursorY = ev.clientY;
+          const naoRect = btnNao.getBoundingClientRect();
+          const distX = Math.max(0, Math.abs((naoRect.left + naoRect.right)/2 - cursorX));
+          const distY = Math.max(0, Math.abs((naoRect.top + naoRect.bottom)/2 - cursorY));
+          const distance = Math.hypot(distX, distY);
+
+          // se o cursor estiver a menos de 120px do centro do NÃO, ele foge
+          if (distance < 120) moveNaoAvoidingSim();
+        });
+      }
+
+      // Prevenir que o botão NÃO seja clicável (segundo plano)
+      btnNao.addEventListener('click', (e) => {
+        // evitar ação ao clicar (caso consiga)
+        e.preventDefault();
+        e.stopPropagation();
+        // dar uma pequena animação (balanço) e fugir novamente
+        btnNao.style.transform = 'translateY(-6px)';
+        setTimeout(()=> btnNao.style.transform = '', 140);
+        moveNaoAvoidingSim();
+      });
+
+      // Redimensionamento da janela: recalcular posições
+      window.addEventListener('resize', () => {
+        placeInitial();
+      });
+
+      // onload inicial
+      window.addEventListener('load', () => {
+        // garantir que os tamanhos foram calculados antes de posicionar
+        setTimeout(() => {
+          placeInitial();
+          moveNaoAvoidingSim();
+          attachFleeBehavior();
+        }, 80);
+      });
+
+      // também garantir posicionamento caso a fonte/etc demore
+      setTimeout(()=> {
+        placeInitial();
+        moveNaoAvoidingSim();
+      }, 1000);
+
+    })();
+  </script>
+</body>
+</html>
