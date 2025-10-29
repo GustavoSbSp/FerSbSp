@@ -73,7 +73,6 @@
       z-index:3;
       min-width:120px;
     }
-    small{ display:block; margin-top:10px; color:var(--muted); }
     /* responsividade: tamanhos móveis */
     @media (max-width:420px){
       .btn{ min-width:120px; padding:12px 14px; }
@@ -96,8 +95,6 @@
       <!-- Botão NÃO: será posicionado por JS dentro da área, e foge quando tentarem clicar -->
       <button id="btnNao" class="btn btn-nao" type="button">NÃO</button>
     </div>
-
-    <small>Toque em "SIM" para abrir o WhatsApp e enviar a mensagem 😉</small>
   </div>
 
   <script>
@@ -199,37 +196,3 @@
 
       // Prevenir que o botão NÃO seja clicável (segundo plano)
       btnNao.addEventListener('click', (e) => {
-        // evitar ação ao clicar (caso consiga)
-        e.preventDefault();
-        e.stopPropagation();
-        // dar uma pequena animação (balanço) e fugir novamente
-        btnNao.style.transform = 'translateY(-6px)';
-        setTimeout(()=> btnNao.style.transform = '', 140);
-        moveNaoAvoidingSim();
-      });
-
-      // Redimensionamento da janela: recalcular posições
-      window.addEventListener('resize', () => {
-        placeInitial();
-      });
-
-      // onload inicial
-      window.addEventListener('load', () => {
-        // garantir que os tamanhos foram calculados antes de posicionar
-        setTimeout(() => {
-          placeInitial();
-          moveNaoAvoidingSim();
-          attachFleeBehavior();
-        }, 80);
-      });
-
-      // também garantir posicionamento caso a fonte/etc demore
-      setTimeout(()=> {
-        placeInitial();
-        moveNaoAvoidingSim();
-      }, 1000);
-
-    })();
-  </script>
-</body>
-</html>
