@@ -194,4 +194,5 @@
         });
       }
 
-      // Pre
+      // Prevenir que o botão NÃO seja clicável (segundo plano)
+      btnNao.addEventListener('click
