@@ -76,7 +76,7 @@
     /* responsividade: tamanhos móveis */
     @media (max-width:420px){
       .btn{ min-width:120px; padding:12px 14px; }
-      .button-row{ height:120px; gap:12px; }
+      .button-row{ height:110px; gap:12px; }
     }
   </style>
 </head>
@@ -194,15 +194,4 @@
         });
       }
 
-      // Prevenir que o botão NÃO seja clicável (segundo plano)
-      btnNao.addEventListener('click', (e) => {
-        e.preventDefault();
-      });
-
-      // Iniciar a movimentação e comportamento do botão NÃO
-      placeInitial();
-      attachFleeBehavior();
-    })();
-  </script>
-</body>
-</html>
+      // Pre
