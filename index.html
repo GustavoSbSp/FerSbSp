@@ -76,7 +76,7 @@
     /* responsividade: tamanhos móveis */
     @media (max-width:420px){
       .btn{ min-width:120px; padding:12px 14px; }
-      .button-row{ height:110px; gap:12px; }
+      .button-row{ height:120px; gap:12px; }
     }
   </style>
 </head>
@@ -186,13 +186,4 @@
           const cursorX = ev.clientX, cursorY = ev.clientY;
           const naoRect = btnNao.getBoundingClientRect();
           const distX = Math.max(0, Math.abs((naoRect.left + naoRect.right)/2 - cursorX));
-          const distY = Math.max(0, Math.abs((naoRect.top + naoRect.bottom)/2 - cursorY));
-          const distance = Math.hypot(distX, distY);
-
-          // se o cursor estiver a menos de 120px do centro do NÃO, ele foge
-          if (distance < 120) moveNaoAvoidingSim();
-        });
-      }
-
-      // Prevenir que o botão NÃO seja clicável (segundo plano)
-      btnNao.addEventListener('click', (e) => {
+          const distY = Math.max(0, Math.abs((
